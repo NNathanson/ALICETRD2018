@@ -1,0 +1,4 @@
+DATA/
+DATA_INTERESTING/
+.DS_Store
+__pycache__/
