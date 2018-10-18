@@ -4,7 +4,7 @@ import numpy as np
 import glob
 import defaults
 
-def plot_event(evt, detector_dimensions=defaults.DEFAULT_DETECTOR_DIMENSIONS, plot_threshold=defaults.DEFAULT_BASELINE, title='', show=True):
+def plot_event(evt, detector_dimensions=defaults.DEFAULT_DETECTOR_DIMENSIONS, plot_threshold=defaults.DEFAULT_PLOT_BASELINE, title='', show=True):
     x_dim = np.linspace(0, detector_dimensions[0], evt.shape[0])
     y_dim = np.linspace(0, detector_dimensions[1], evt.shape[1])
     z_dim = np.linspace(0, -detector_dimensions[2], evt.shape[2])

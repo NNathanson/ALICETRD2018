@@ -12,8 +12,6 @@ import glob
 import o32reader as rdr
 
 def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filename=defaults.CURRENT_FILE, threshold = defaults.DEFAULT_BASELINE, interesting_output_directory = defaults.DEFAULT_INTERESTING_DATA_FOLDER):
-    print_evno_every = 100
-
     reader = rdr.o32reader(data_folder + filename)
     analyser = adc.adcarray()
 
@@ -29,13 +27,13 @@ def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filen
     def data_is_interesting(data):
         return np.max(data) > threshold
 
-    maxevno = 0
-    minevno = 0
-    absmax = 0
-    absmin = 2**10
+    maxevno = None
+    minevno = None
+    absmax = None
+    absmin = None
     for evno, raw_data in enumerate(reader):
-        if evno % print_evno_every == 0:
-            print("Proccessing events %d - %d" % (evno, evno + print_evno_every))
+        if evno % defaults.PRINT_EVNO_EVERY == 0:
+            print("Proccessing events %d - %d" % (evno, evno + defaults.PRINT_EVNO_EVERY))
 
         if evno == 0:
             continue        #Skip first event (may be a configuration event depending on run configurations).
@@ -47,11 +45,11 @@ def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filen
         maxval = np.max(data)
         minval = np.min(data)
 
-        if maxval > absmax:
+        if absmax is None or maxval > absmax:
             absmax = maxval
             maxevno = evno
 
-        if minval < absmin:
+        if absmin is None or minval < absmin:
             absmin = minval
             minevno = evno
 
