@@ -1,6 +1,5 @@
+*.png
 DATA/
-DATA_INTERESTING/
-.DS_Store
 __pycache__/
 tbsum_spectrum.py
 tbavg_spectrum.py
