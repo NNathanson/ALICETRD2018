@@ -54,7 +54,10 @@ def sum_events(path):
             # depending on run configurations.
             continue 
 
-        analyser.analyse_event(raw_data)
+        try:
+            analyser.analyse_event(raw_data)
+        except adc.datafmt_error as e:
+            continue
         data = analyser.data[:12] # The last four rows are zeros.
         data[defaults.DATA_EXCLUDE_MASK] = 0.0
 
