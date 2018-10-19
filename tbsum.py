@@ -1,4 +1,15 @@
-"""Produce a histogram of interesting events summed over time bins."""
+"""python3 tbsum.py [FILE...]
+
+Produce a histogram of interesting events summed over time bins.
+
+Extract interesting events from raw data files, sum the data arrays, sum
+over the time bins, and save a histogram in a file called tbsum.png.
+
+Parameters
+----------
+FILE : list of arbitrary length of paths to raw data files, relative to
+this file's directory.  If this parameter is absent, process all files in `defaults.DEFAULT_DATA_FOLDER`.
+"""
 import defaults
 import o32reader as rdr
 import adcarray as adc
