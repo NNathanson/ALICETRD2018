@@ -11,6 +11,14 @@ import defaults
 import glob
 import o32reader as rdr
 
+def adc_threshold(data, threshold = defaults.DEFAULT_BASELINE):
+    return np.max(data) > threshold
+
+def adc_threshold_and_single_row(data, threshold = defaults.DEFAULT_BASELINE):
+    return adc_threshold(data) and len(set(np.where(data > threshold / 3)[0])) == 1
+
+data_is_interesting = adc_threshold_and_single_row
+
 def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filename=defaults.CURRENT_FILE, threshold = defaults.DEFAULT_BASELINE, interesting_output_directory = defaults.DEFAULT_INTERESTING_DATA_FOLDER):
     reader = rdr.o32reader(data_folder + filename)
     analyser = adc.adcarray()
@@ -23,10 +31,6 @@ def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filen
     except FileExistsError:
         print('Output directory already exists.')
 
-
-    def data_is_interesting(data):
-        return np.max(data) > threshold
-
     maxevno = None
     minevno = None
     absmax = None
@@ -38,7 +42,11 @@ def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filen
         if evno == 0:
             continue        #Skip first event (may be a configuration event depending on run configurations).
 
-        analyser.analyse_event(raw_data)
+        try:
+            analyser.analyse_event(raw_data)
+        except adc.datafmt_error as e:
+            print(repr(e))
+            continue
         data = analyser.data[:12]           #Last four rows are zeros. (Ask Dittel).
         data[defaults.DATA_EXCLUDE_MASK] = 0.0
 
@@ -53,7 +61,7 @@ def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filen
             absmin = minval
             minevno = evno
 
-        if data_is_interesting(data):
+        if data_is_interesting(data, threshold):
             output_file = output_dir + str(evno) + '_thresh_' + str(threshold) + '.npy'
             print("Found interesting data. Saving to", output_file, ' max value ', np.max(data))
             np.save(output_file, data)

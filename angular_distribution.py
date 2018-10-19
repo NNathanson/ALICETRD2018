@@ -35,8 +35,7 @@ def linear_fit(evt, threshold=defaults.DEFAULT_BASELINE, detector_dimensions=def
 
 def convert_betas_to_angles(beta_x, beta_y):
     theta = np.arccos(1/np.sqrt(beta_x[1]**2 + beta_y[1]**2 + 1))# - np.pi/2
-    print(theta)
-    phi = np.arctan(beta_y[1] / beta_x[1])
+    phi = np.arctan(beta_y[1] / beta_x[1]) + np.pi/2 + (beta_x[1] < 0) * np.pi
     return np.asarray([theta, phi])
 
 def get_angular_distribution(data_path, threshold = defaults.DEFAULT_BASELINE, detector_dimensions = defaults.DEFAULT_DETECTOR_DIMENSIONS, show_plots=False):
@@ -44,6 +43,8 @@ def get_angular_distribution(data_path, threshold = defaults.DEFAULT_BASELINE, d
 
     angles = np.zeros((len(event_files), 2))
     for index, file in enumerate(event_files):
+        if index % defaults.PRINT_EVNO_EVERY == 0:
+            print("Proccessing interesting events %d - %d" % (index, index + defaults.PRINT_EVNO_EVERY))
         filename = file.split('/')[-1].split('.')[0]
         event_num = int(filename.split('_')[0])
         evt = np.load(file)
@@ -64,8 +65,9 @@ def get_angular_distribution(data_path, threshold = defaults.DEFAULT_BASELINE, d
             z_dim = np.linspace(0, detector_dimensions[2], 100)
             X_fit, Y_fit = vec_func(z_dim).T
             ax = plot_event(evt, detector_dimensions=detector_dimensions, show=False)
-            ax.plot(X_fit, Y_fit, z_dim, color='green')
+            ax.plot(X_fit, Y_fit, -z_dim, color='green')
             plt.show()
+
     return angles
 
 def sphere_embed(coords):
@@ -84,5 +86,12 @@ def spherical_plot(angles):
 
 if __name__=='__main__':
     interesting_data_folder = defaults.DEFAULT_INTERESTING_DATA_FOLDER + defaults.CURRENT_FILE + '/'
-    angles = get_angular_distribution(interesting_data_folder, show_plots=True)
+    angles = get_angular_distribution(interesting_data_folder, show_plots=False)
+    print(np.nanmin(angles, axis=0))
+    print(np.nanmax(angles, axis=0))
     spherical_plot(angles)
+
+    theta, phi = angles.T
+
+    plt.hist(theta[~np.isnan(theta)], bins=100)
+    plt.show()

@@ -4,6 +4,11 @@ import pylab as pl
 
 from collections import namedtuple
 
+class datafmt_error(Exception):
+    pass
+
+
+
 class adcarray:
 
     end_of_tracklet = int('0x10001000',0)
@@ -11,8 +16,8 @@ class adcarray:
     
 #Defining the initial variables for class    
     def __init__(self):
-        self.data=np.zeros((12,144,30))
-        self.clean_data=np.zeros((12,144,30))
+        self.data=np.zeros((16,144,30))
+        self.clean_data=np.zeros((16,144,30))
 
         self.HC_header=0
         self.HC1_header=0
@@ -32,6 +37,9 @@ class adcarray:
         Extracts next element in the dictionary
         '''
         self.line+=1
+        if self.line >= dic['datablocks'][self.sfp]['raw'].size:
+            raise datafmt_error()
+
         return dic['datablocks'][self.sfp]['raw'][self.line]
 
 
@@ -154,7 +162,7 @@ class adcarray:
         Extracts all the data from event in file and reads into 3D data cube: self.data
         '''
 
-        self.data=np.zeros((12,144,30))
+        self.data=np.zeros((16,144,30))
         for sfp in [0,1]:
             self.sfp=sfp
             self.line=-1
@@ -305,7 +313,7 @@ class adcarray:
         Resets initial varaiables associated with the adcarray data
         '''
 
-        self.data=np.zeros((12,144,30))
+        self.data=np.zeros((16,144,30))
 
         self.HC_header=0
         self.HC1_header=0

@@ -2,3 +2,7 @@ DATA/
 DATA_INTERESTING/
 .DS_Store
 __pycache__/
+tbsum_spectrum.py
+tbavg_spectrum.py
+pulse_height_spectrum.py
+adc_spectrum.py
