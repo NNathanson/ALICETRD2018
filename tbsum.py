@@ -21,6 +21,18 @@ import sys
 
 array_shape = (12, 144, 30)
 def sum_events(path):
+    """Extract interesting events from a file, and sum the data arrays.
+    
+    Parameters
+    ----------
+    path : str
+        Path to a raw data file
+
+    Returns
+    -------
+    data_sum : array of shape (12, 144, 30)
+        The sum of all interesting events, without summing over time
+    """
     reader = rdr.o32reader(path)
     analyser = adc.adcarray()
 
