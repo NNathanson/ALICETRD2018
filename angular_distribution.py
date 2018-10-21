@@ -15,16 +15,13 @@ def linear_fit_1D(x, y, weights):
     beta = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(weights * y)
     return beta
 
-def linear_fit(evt, threshold=defaults.DEFAULT_BASELINE, detector_dimensions=defaults.DEFAULT_DETECTOR_DIMENSIONS):
+def linear_fit(evt, threshold=defaults.FITTING_BASELINE):
     interaction_mask = evt > threshold
     pnts = np.where(interaction_mask)
     X_inds, Y_inds, Z_inds = pnts
-    X = X_inds * detector_dimensions[0] / (evt.shape[0] - 1)
-    Y = Y_inds * detector_dimensions[1] / (evt.shape[1] - 1)
-    Z = Z_inds * detector_dimensions[2] / (evt.shape[2] - 1)
     weights = evt[X_inds, Y_inds, Z_inds]
-    beta_x = linear_fit_1D(Z, X, weights)
-    beta_y = linear_fit_1D(Z, Y, weights)
+    beta_x = linear_fit_1D(Z_inds, X_inds, weights)
+    beta_y = linear_fit_1D(Z_inds, Y_inds, weights)
 
     def vec_func(Z):
         pnts = np.zeros((Z.shape[0], 2))
@@ -33,12 +30,14 @@ def linear_fit(evt, threshold=defaults.DEFAULT_BASELINE, detector_dimensions=def
         return pnts
     return beta_x, beta_y, vec_func
 
-def convert_betas_to_angles(beta_x, beta_y):
-    theta = np.arccos(1/np.sqrt(beta_x[1]**2 + beta_y[1]**2 + 1))# - np.pi/2
-    phi = np.arctan(beta_y[1] / beta_x[1]) + np.pi/2 + (beta_x[1] < 0) * np.pi
+def convert_betas_to_angles(beta_x, beta_y, detector_spacings=defaults.DEFAULT_SPACINGS):
+    mx = beta_x[1] * detector_spacings[0]
+    my = beta_y[1] * detector_spacings[1]
+    theta = np.arccos(1/np.sqrt(mx**2 + my**2 + 1))# - np.pi/2
+    phi = np.arctan(my / mx) + np.pi/2 + (mx < 0) * np.pi
     return np.asarray([theta, phi])
 
-def get_angular_distribution(data_path, threshold = defaults.DEFAULT_BASELINE, detector_dimensions = defaults.DEFAULT_DETECTOR_DIMENSIONS, show_plots=False):
+def get_angular_distribution(data_path, threshold = defaults.FITTING_BASELINE, detector_dimensions = defaults.DEFAULT_DETECTOR_DIMENSIONS, detector_spacings=defaults.DEFAULT_SPACINGS, show_plots=False):
     event_files = glob.glob(data_path+'*.npy')
 
     angles = np.zeros((len(event_files), 2))
@@ -50,8 +49,8 @@ def get_angular_distribution(data_path, threshold = defaults.DEFAULT_BASELINE, d
         evt = np.load(file)
 
         try:
-            beta_x, beta_y, vec_func = linear_fit(evt, threshold=threshold, detector_dimensions=detector_dimensions)
-            angs = convert_betas_to_angles(beta_x, beta_y)
+            beta_x, beta_y, vec_func = linear_fit(evt, threshold=threshold)
+            angs = convert_betas_to_angles(beta_x, beta_y, detector_spacings=detector_spacings)
             angles[index] = angs
             #print('beta_x:', beta_x, 'beta_y:', beta_y, 'theta:', angs[0], 'phi:', angs[1])
         except Exception as e:
@@ -62,10 +61,11 @@ def get_angular_distribution(data_path, threshold = defaults.DEFAULT_BASELINE, d
             continue
 
         if show_plots:
-            z_dim = np.linspace(0, detector_dimensions[2], 100)
+            z_dim = np.arange(30)
             X_fit, Y_fit = vec_func(z_dim).T
             ax = plot_event(evt, detector_dimensions=detector_dimensions, show=False)
-            ax.plot(X_fit, Y_fit, -z_dim, color='green')
+            print(X_fit * detector_spacings[0], Y_fit * detector_spacings[1], -z_dim * detector_spacings[2])
+            ax.plot(X_fit * detector_spacings[0], Y_fit * detector_spacings[1], -z_dim * detector_spacings[2], color='green')
             plt.show()
 
     return angles
@@ -86,12 +86,12 @@ def spherical_plot(angles):
 
 if __name__=='__main__':
     interesting_data_folder = defaults.DEFAULT_INTERESTING_DATA_FOLDER + defaults.CURRENT_FILE + '/'
-    angles = get_angular_distribution(interesting_data_folder, show_plots=False)
+    angles = get_angular_distribution(interesting_data_folder, show_plots=True)
     print(np.nanmin(angles, axis=0))
     print(np.nanmax(angles, axis=0))
     spherical_plot(angles)
 
     theta, phi = angles.T
 
-    plt.hist(theta[~np.isnan(theta)], bins=100)
+    plt.hist(theta[~np.isnan(theta)], bins=50)
     plt.show()
