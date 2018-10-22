@@ -68,5 +68,6 @@ if __name__ == '__main__':
         hist += sum_events(f)
     print('The maximum in hist is %g.' % (np.amax(hist)))
     plt.bar(bins[:-1], hist, bins[1] - bins[0], log=True)
-    plt.xlabel('ADC Value')
+    plt.xlabel('Time-summed ADC Value')
+    plt.ylabel('Count')
     plt.savefig('tbsum.png', bbox_inches='tight')
