@@ -70,7 +70,7 @@ if __name__ == '__main__':
     width = bins[1] - bins[0]
     plt.bar(bins[:-1], hist, width, align='edge', log=True)
     right = np.amax(bins[:-1]*index) + 2*width
-    plt.xlim(0, right)
+    plt.xlim(-20, right)
     plt.xlabel('Time-summed ADC Value')
     plt.ylabel('Count')
     plt.savefig('tbsum.png', bbox_inches='tight')
