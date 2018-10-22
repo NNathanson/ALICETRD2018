@@ -1,6 +1,6 @@
 """python3 tracksum.py file
 
-Plot a histogram of tracklet events from a data file.
+Plot a histograms of tracklet events from a data file.
 
 Paramters
 ---------
@@ -10,6 +10,9 @@ import sys
 import o32reader as rdr
 import adcarray as adc
 import numpy as np
+import defaults
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 if len(sys.argv) != 2:
     print('Incorrect use of tracksum.py.  Type', file=sys.stderr)
@@ -19,7 +22,8 @@ if len(sys.argv) != 2:
 reader = rdr.o32reader(sys.argv[1])
 analyser = adc.adcarray()
 bins = np.linspace(1, 14000, 2000)
-hist, bin_edges = np.histogram([], bins)
+main, bin_edges = np.histogram([], bins)
+edges, bin_edges = np.histogram([], bins)
 for evno, raw_data in enumerate(reader):
     if evno % defaults.PRINT_EVNO_EVERY == 0:
         print("Proccessing events %d–%d"
@@ -38,3 +42,22 @@ for evno, raw_data in enumerate(reader):
     data[defaults.DATA_EXCLUDE_MASK] = 0.0
     tbsum = np.sum(data, 2)
     flat = np.ravel(tbsum)
+
+    # Loop through flat to find local maxima.
+    for i in range(1, flat.size-1):
+        if flat[i] > defaults.INTERESTING_THRESHOLD and flat[i-1] < flat[i] and flat[i] > flat[i+1]:
+            foo, bar = np.histogram([flat[i]], bins)
+            main += foo
+            foo, bar = np.histogram([flat[i-1], flat[i+1]], bins)
+            edges += foo
+
+# Produce plots.
+mpl.rcParams['font.size'] = 12
+width = bins[1] - bins[0]
+plt.bar(bins[:-1], main, width, align='edge', log=True)
+right = np.amax(bins[:-1]*(main > 1)) + 2*width
+plt.xlim(-10, right)
+plt.savefig('on_track', bbox_inches='tight')
+plt.clf()
+plt.bar(bins[:-1], edges, width, align='edge', log=True)
+plt.savefig('off_track', bbox_inches='tight')
