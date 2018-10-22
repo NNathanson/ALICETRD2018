@@ -55,9 +55,13 @@ for evno, raw_data in enumerate(reader):
 mpl.rcParams['font.size'] = 12
 width = bins[1] - bins[0]
 plt.bar(bins[:-1], main, width, align='edge', log=True)
+plt.xlabel('Time-summed ADC Value')
+plt.ylabel('Count')
 right = np.amax(bins[:-1]*(main > 1)) + 2*width
 plt.xlim(-10, right)
 plt.savefig('on_track', bbox_inches='tight')
-plt.clf()
 plt.bar(bins[:-1], edges, width, align='edge', log=True)
+plt.xlabel('Time-summed ADC Value')
+plt.ylabel('Count')
+plt.savefig('both', bbox_inches='tight')
 plt.savefig('off_track', bbox_inches='tight')
