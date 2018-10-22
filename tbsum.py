@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import glob
 import sys
 
+plt.rcParams.update({'font.size': 12})
 array_shape = (12, 144, 30)
 num = 2000
 bins = np.linspace(1, 20000, num)
