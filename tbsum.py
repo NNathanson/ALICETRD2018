@@ -66,8 +66,11 @@ if __name__ == '__main__':
     hist, bin_edges = np.histogram((), bins)
     for f in files:
         hist += sum_events(f)
-    print('The maximum in hist is %g.' % (np.amax(hist)))
-    plt.bar(bins[:-1], hist, bins[1] - bins[0], log=True)
+    index = hist > 0
+    width = bins[1] - bins[0]
+    plt.bar(bins[:-1], hist, width, align='edge', log=True)
+    right = np.amax(bins[:-1]*index) + 2*width
+    plt.xlim(0, right)
     plt.xlabel('Time-summed ADC Value')
     plt.ylabel('Count')
     plt.savefig('tbsum.png', bbox_inches='tight')
