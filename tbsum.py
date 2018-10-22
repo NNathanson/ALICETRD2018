@@ -73,4 +73,6 @@ if __name__ == '__main__':
     plt.xlim(-20, right)
     plt.xlabel('Time-summed ADC Value')
     plt.ylabel('Count')
-    plt.savefig('tbsum.png', bbox_inches='tight')
+    out_filename = ('tbsum_' + files[0][len(defaults.DEFAULT_DATA_FOLDER):]
+            + '.png')
+    plt.savefig(out_filename, bbox_inches='tight')
