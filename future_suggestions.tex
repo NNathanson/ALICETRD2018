@@ -1,0 +1,79 @@
+%% LyX 2.3.0 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\begin{document}
+
+\section{Suggestions for future investigations}
+
+\subsection{More sophisticated ray reconstruction algorithm}
+
+There are various assumptions made in the ray reconstruction algorithm
+which may be considered questionable. First of all, the influence
+of an incident electron on the pads above it is not a time-localized
+phenomenon, the electron will tend to influence the pads for a couple
+time bins before it actually reaches the anode wire. Additionally,
+the way in which an electron affects the pads not directly above it
+is also a non-trivial one and because of this, the linear fits with
+linear ADC weighting may be called into question. Another key relationship
+is between the deposition depth of an electron and the corrosponding
+time bins in which it leaves its influence. This may require further
+investigation, especially in regions with non-constant electric fields,
+such as the anode zone. Finally, efforts ought to be made in the future
+to filter out unreliable fits due to multiple muons being caught within
+a single event in different locations.
+
+\subsection{Energy deposition}
+
+Another interesting relationship which may be worth investigating
+is the link between the ADC values and the associated energy deposition
+in the gas due to a muon. This is likely to be a complicated relationship
+involving the Bethe-Bloch equation and various properties of the amplification
+zone but this ought to be doable and would provide an interesting
+method of verifying whether muons are the true cause of the tracks
+in the detector.
+
+\subsection{Investigating gas purity as an explination for pulse height spectrum
+plateau inclination.}
+
+The pulse height spectra in sections ??? demonstrate a slanted plateau
+corrosponding to the drift region. This is hypothesised to be due
+to electron re-absorbtion by various impurities in the gas such as
+Oxygen. Perhaps a method of measureing the purity of the gas could
+be developed in the future and used to verify or reject this prediction.
+
+\subsection{Multiple scintillation co-incidence triggering}
+
+In the current configuration, the scintillation detector is placed
+underneath the TRD chamber. This leaves the configuration vulnerable
+to triggers from muons which pass through the scintillation detector
+but not through the TRD chamber (at a steep angle). Therefore placing
+a second detector above the TRD chamber and only triggering on co-incidence
+between the top and bottom detectors will help to reduce false triggers.
+Having multiple scintillators will also tend to reduce false triggers
+due to noise and other non-muon scintillation events.
+
+\subsection{Muon shower origin triangulation}
+
+A future project may look into using multiple scintillators and the
+relative delay between signals from a muon shower to calculate the
+origin of the shower in the upper atmosphere. This may also be compared
+with the angle of the tracklets through the TRD chamber ton see if
+the points coincide.
+
+\subsection{TRD efficiency}
+
+There is currently no way of calculating what the probability of detecting
+an incidant muon is provided it passes through the detector and/or
+scintillator this may be worth investigating in the future.
+
+\subsection{Measure local cosmic muon flux}
+
+Another interesting project may be to measure the total local flux
+density of cosmic muons, possibly as a function of solid angle when
+coupled with suggestion 5, in Cape Town. This may be performed with
+multiple scintillation detectors and compared to other common literature
+values.
+\end{document}

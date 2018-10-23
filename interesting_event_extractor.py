@@ -18,7 +18,6 @@ def adc_threshold_and_single_row(data, threshold = defaults.INTERESTING_THRESHOL
     return adc_threshold(data) and len(set(np.where(data > threshold / 3)[0])) == 1
 
 data_is_interesting = adc_threshold_and_single_row
-data_is_interesting = adc_threshold
 
 def extract_interesting_events(data_folder = defaults.DEFAULT_DATA_FOLDER, filename=defaults.CURRENT_FILE, threshold = defaults.INTERESTING_THRESHOLD, interesting_output_directory = defaults.DEFAULT_INTERESTING_DATA_FOLDER):
     reader = rdr.o32reader(data_folder + filename)

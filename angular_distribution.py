@@ -19,7 +19,7 @@ def linear_fit(evt, threshold=defaults.FITTING_BASELINE):
     interaction_mask = evt > threshold
     pnts = np.where(interaction_mask)
     X_inds, Y_inds, Z_inds = pnts
-    weights = evt[X_inds, Y_inds, Z_inds]
+    weights = evt[X_inds, Y_inds, Z_inds] - 9.6
     beta_x = linear_fit_1D(Z_inds, X_inds, weights)
     beta_y = linear_fit_1D(Z_inds, Y_inds, weights)
 
@@ -31,8 +31,8 @@ def linear_fit(evt, threshold=defaults.FITTING_BASELINE):
     return beta_x, beta_y, vec_func
 
 def convert_betas_to_angles(beta_x, beta_y, detector_spacings=defaults.DEFAULT_SPACINGS):
-    mx = beta_x[1] * detector_spacings[0]
-    my = beta_y[1] * detector_spacings[1]
+    mx = beta_x[1] * detector_spacings[0] / detector_spacings[2]
+    my = beta_y[1] * detector_spacings[1] / detector_spacings[2]
     theta = np.arccos(1/np.sqrt(mx**2 + my**2 + 1))# - np.pi/2
     phi = np.arctan(my / mx) + np.pi/2 + (mx < 0) * np.pi
     return np.asarray([theta, phi])
@@ -52,6 +52,10 @@ def get_angular_distribution(data_path, threshold = defaults.FITTING_BASELINE, d
             beta_x, beta_y, vec_func = linear_fit(evt, threshold=threshold)
             angs = convert_betas_to_angles(beta_x, beta_y, detector_spacings=detector_spacings)
             angles[index] = angs
+            # if angs[0] > 1.5 / 2:
+            #     show_plots = True
+            # else:
+            #     show_plots = False
             #print('beta_x:', beta_x, 'beta_y:', beta_y, 'theta:', angs[0], 'phi:', angs[1])
         except Exception as e:
             print('UNABLE TO LINEAR FIT. Error:', repr(e))
@@ -61,6 +65,7 @@ def get_angular_distribution(data_path, threshold = defaults.FITTING_BASELINE, d
             continue
 
         if show_plots:
+            print(beta_x, beta_y, angs[0])
             z_dim = np.arange(30)
             X_fit, Y_fit = vec_func(z_dim).T
             ax = plot_event(evt, detector_dimensions=detector_dimensions, show=False)
@@ -80,18 +85,22 @@ def spherical_plot(angles):
     X, Y, Z = sphere_embed(angles.T)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot_wireframe(*sphere_embed(coordinate_angles), cstride=10, rstride=10)
-    ax.scatter(X, Y, Z, color='red', marker='o')
+    ax.plot_wireframe(*sphere_embed(coordinate_angles), cstride=10, rstride=10, linewidth=0.5)
+    ax.scatter(X, Y, Z, color='red', marker='o', s=3)
     plt.show()
 
 if __name__=='__main__':
     interesting_data_folder = defaults.DEFAULT_INTERESTING_DATA_FOLDER + defaults.CURRENT_FILE + '/'
-    angles = get_angular_distribution(interesting_data_folder, show_plots=True)
+    angles = get_angular_distribution(interesting_data_folder, show_plots=False)
+    print(np.max(angles))
     print(np.nanmin(angles, axis=0))
     print(np.nanmax(angles, axis=0))
+    print(angles.shape)
     spherical_plot(angles)
 
     theta, phi = angles.T
 
-    plt.hist(theta[~np.isnan(theta)], bins=50)
+    plt.hist(theta[~np.isnan(theta)] * 360 / (2*np.pi), bins=50)
+    plt.xlabel('Inclination Angle (Degrees)')
+    plt.ylabel('Counts')
     plt.show()
