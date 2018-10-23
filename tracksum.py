@@ -51,6 +51,8 @@ for evno, raw_data in enumerate(reader):
             foo, bar = np.histogram([flat[i-1], flat[i+1]], bins)
             edges += foo
 
+np.save('main', main)
+np.save('edges', edges)
 # Produce plots.
 mpl.rcParams['font.size'] = 12
 width = bins[1] - bins[0]
@@ -66,6 +68,7 @@ plt.xlim(-10, right)
 plt.xlabel('Time-summed ADC Value')
 plt.ylabel('Count')
 plt.savefig('both', bbox_inches='tight')
+plt.clf()
 plt.bar(bins[:-1], edges, width, align='edge', log=True)
 plt.xlim(-10, right)
 plt.xlabel('Time-summed ADC Value')
